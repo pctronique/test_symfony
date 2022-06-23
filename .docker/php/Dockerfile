@@ -24,8 +24,9 @@ RUN set -ex; \
 	apt-get install -y \
 		libjpeg-dev \
 		libpng-dev \
-                libmcrypt-dev \
-                git \
+        libmcrypt-dev \
+		unzip \
+        git \
 	; \
 	rm -rf /var/lib/apt/lists/*; \
 	\
