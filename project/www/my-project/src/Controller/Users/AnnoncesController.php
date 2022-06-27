@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Controller\Admin;
+namespace App\Controller\Users;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\AnnoncesRepository;
-use App\Entity\Images;
+use App\Service\ManagePicturesService;
 use App\Entity\Annonces;
 use App\Form\AnnoncesType;
 
 /**
- * @Route("/admin/annonces", name="admin_annonces_")
+ * @Route("/users/annonces", name="users_annonces_")
  */
 class AnnoncesController extends AbstractController
 {
@@ -22,7 +21,7 @@ class AnnoncesController extends AbstractController
      */
     public function index(AnnoncesRepository $annoncesRepo): Response
     {
-        return $this->render('admin/annonces/index.html.twig', [
+        return $this->render('users/annonces/index.html.twig', [
             'controller_name' => 'AnnoncesController',
             'annonces' => $annoncesRepo->findAll()
         ]);
@@ -40,7 +39,7 @@ class AnnoncesController extends AbstractController
         $em->flush();
 
         $this->addFlash('message', 'Annonce supprimée avec succès');
-        return $this->redirectToRoute('admin_annonces_home');
+        return $this->redirectToRoute('users_annonces_home');
     }
 
     /**
@@ -60,26 +59,32 @@ class AnnoncesController extends AbstractController
     /**
      * @Route("/ajout", name="ajout")
      */
-    public function ajoutAnnonce(Request $request): Response
+    public function ajout(Request $request, ManagePicturesService $picturesService): Response
     {
-        $annonces = new Annonces;
+        $annonce = new Annonces;
 
-        $form = $this->createForm(AnnoncesType::class, $annonces);
+        $form = $this->createForm(AnnoncesType::class, $annonce);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            $annonces->setUsers($this->getUser());
-            $annonces->setActive(false);
+            $annonce->setUsers($this->getUser());
+            $annonce->setActive(false);
+
+            // On récupère les images transmises
+            $images = $form->get('images')->getData();
+                
+            // On ajoute les images
+            $picturesService->add($images, $annonce);
 
             $em = $this->getDoctrine()->getManager();
-            $em->persist($annonces);
+            $em->persist($annonce);
             $em->flush();
 
-            return $this->redirectToRoute('admin_annonces_home');
+            return $this->redirectToRoute('users_annonces_home');
         }
 
-        return $this->render('admin/annonces/ajout.html.twig', [
+        return $this->render('users/annonces/ajout.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -99,36 +104,11 @@ class AnnoncesController extends AbstractController
             $em->persist($annonces);
             $em->flush();
 
-            return $this->redirectToRoute('admin_annonces_home');
+            return $this->redirectToRoute('users_annonces_home');
         }
 
-        return $this->render('admin/annonces/ajout.html.twig', [
+        return $this->render('users/annonces/ajout.html.twig', [
             'form' => $form->createView()
         ]);
-    }
-
-    /**
-     * @Route("/supprime/image/{id}", name="delete_image", methods={"DELETE"})
-     */
-    public function deleteImage(Images $image, Request $request){
-        $data = json_decode($request->getContent(), true);
-
-        // On vérifie si le token est valide
-        if($this->isCsrfTokenValid('delete'.$image->getId(), $data['_token'])){
-            // On récupère le nom de l'image
-            $nom = $image->getName();
-            // On supprime le fichier
-            unlink($this->getParameter('images_directory').'/'.$nom);
-
-            // On supprime l'entrée de la base
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($image);
-            $em->flush();
-
-            // On répond en json
-            return new JsonResponse(['success' => 1]);
-        }else{
-            return new JsonResponse(['error' => 'Token Invalide'], 400);
-        }
     }
 }

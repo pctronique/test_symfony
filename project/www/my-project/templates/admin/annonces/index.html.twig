@@ -1,58 +1,60 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin.html.twig' %}
 
 {% block title %}Gérer les annonces{% endblock %}
 
 {% block body %}
-    <h1>Gérer les annonces</h1>
-    <a href="{{ path("admin_annonces_ajout") }}" class="btn blue">Ajouter une annonce</a>
-    <div class="table-responsive">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Titre</th>
-        <th>Date</th>
-        <th>Active</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-
-        {% for annonce in annonces %}
+    <div class="container">
+      <h1>Gérer les annonces</h1>
+      <a href="{{ path("admin_annonces_ajout") }}" class="btn blue">Ajouter une annonce</a>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
             <tr>
-                <td>{{ annonce.id }}</td>
-                <td>{{ annonce.title }}</td>
-                <td>{{ annonce.createdAt|date }}</td>
-                <td>
-                  
-                    <label class="form-switch mt-2 sm3">
-                      <input type="checkbox" data-id="{{ annonce.id }}" {{ (annonce.active) ? "checked" : "" }}>
-                      <span class="form-slider"></span>
-                    </label>
-                </td>
-                <td class="text-center">
-                    <a href="{{ path("admin_annonces_modifier", {id: annonce.id}) }}" class="btn blue">Modifier</a>
-                    <a href="#" class="btn rounded-1 primary btn-press modal-trigger" data-target="modal-delete" data-id="{{annonce.id}}" data-titre="{{annonce.title}}">Supprimer</a>
-                </td>
+              <th>ID</th>
+              <th>Titre</th>
+              <th>Date</th>
+              <th>Active</th>
+              <th>Actions</th>
             </tr>
-        {% endfor %}
-      
-    </tbody>
-  </table>
+          </thead>
+          <tbody>
+
+              {% for annonce in annonces %}
+                  <tr>
+                      <td>{{ annonce.id }}</td>
+                      <td>{{ annonce.title }}</td>
+                      <td>{{ annonce.createdAt|date }}</td>
+                      <td>
+                        
+                          <label class="form-switch mt-2 sm3">
+                            <input type="checkbox" data-id="{{ annonce.id }}" {{ (annonce.active) ? "checked" : "" }}>
+                            <span class="form-slider"></span>
+                          </label>
+                      </td>
+                      <td class="text-center">
+                          <a href="{{ path("admin_annonces_modifier", {id: annonce.id}) }}" class="btn blue">Modifier</a>
+                          <a href="#" class="btn rounded-1 primary btn-press modal-trigger" data-target="modal-delete" data-id="{{annonce.id}}" data-titre="{{annonce.title}}">Supprimer</a>
+                      </td>
+                  </tr>
+              {% endfor %}
+            
+          </tbody>
+        </table>
 
 
-<div class="modal shadow-1 white modal-falling" id="modal-delete">
-  <div class="modal-header">Supprimer une annonce</div>
-		<div class="divider"></div>
-		<div class="modal-content">
-		</div>
-		<div class="divider"></div>
-		<div class="modal-footer">
-			<a href="" class="btn red">Valider</a>
-			<a href="#" data-target="modal-delete" class="ml-auto btn small primary modal-trigger">Close</a>
-		</div>
-	</div>
-</div>
+        <div class="modal shadow-1 white modal-falling" id="modal-delete">
+          <div class="modal-header">Supprimer une annonce</div>
+            <div class="divider"></div>
+            <div class="modal-content">
+            </div>
+            <div class="divider"></div>
+            <div class="modal-footer">
+              <a href="" class="btn red">Valider</a>
+              <a href="#" data-target="modal-delete" class="ml-auto btn small primary modal-trigger">Close</a>
+            </div>
+          </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}

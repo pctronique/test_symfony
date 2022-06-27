@@ -15,20 +15,29 @@
         <header>
             <nav class="navbar primary">
                 <a href="{{ path('app_home') }}" class="navbar-brand">Achats</a>
-                <div class="navbar-menu ml-auto">
-                    <a class="navbar-link" href="{{ path('app_home') }}">Accueil</a>
-                    <a class="navbar-link" href="#">Link 2</a>
-                    <a class="navbar-link" href="#">Link 3</a>
-                    <a class="navbar-link" href="#">Link 4</a>
+                <div class="d-flex navbar-menu ml-auto">
+                    <div class="dropdown ml-auto" id="example-dropdown" data-ax="dropdown">
+                        <button type="button" class="btn shadow-1 rounded-1 primary" data-target="example-dropdown">
+                        Toggle
+                        </button>
+                        <div class="dropdown-content white dropdown-right shadow-1 rounded-1">
+                        <a class="dropdown-item" href="{{ path('app_home') }}">Accueil</a>
+                        <a class="dropdown-item" href="{{ path('app_register') }}">Register</a>
+                        <a class="dropdown-item" href="{{ path('app_login') }}">Login</a>
+                        <a class="dropdown-item" href="{{ path('users_home') }}">Users</a>
+                        <a class="dropdown-item" href="{{ path('admin_home') }}">Admin</a>
+                        </div>
+                    </div>
                 </div>
             </nav>
+            
         </header>
         <div id="example-sidenav" data-ax="sidenav" class="sidenav shadow-1 sidenav-fixed white">
-            <div class="sidenav-header">
+            <!--<div class="sidenav-header">
                 <img class="sidenav-logo dropshadow-1" src="your_img_path" alt="Logo" />
-            </div>
-            <a href="#" class="sidenav-link active">Mon profile</a>
-            <a href="#" class="sidenav-link">Mes annonces</a>
+            </div>-->
+            <a href="{{ path('users_home') }}" class="sidenav-link active">Mon profile</a>
+            <a href="{{ path('users_annonces_home') }}" class="sidenav-link">Mes annonces</a>
         </div>
 
         <main>
@@ -39,8 +48,33 @@
         {% block body %}{% endblock %}
         </main>
 
-        <footer class="footer primary">
-            Copyright © 2019 - Example
+        <footer class="d-flex fx-col blue">
+            <div class="container">
+                <div class="grix xs3">
+                <div>
+                    <h6>Left side of the footer</h6>
+                    <p>
+                    This is my phone number<br />
+                    01 23 45 67 89
+                    </p>
+                </div>
+                <div class="text-center">
+                    <h6>Middle of the footer</h6>
+                    <p>
+                    Welcome<br />
+                    I'm under "Welcome"
+                    </p>
+                </div>
+                <div class="text-right">
+                    <h6>Right side of the footer</h6>
+                    <p>
+                    This is my address<br />
+                    Route 12
+                    </p>
+                </div>
+                </div>
+            </div>
+            <div class="footer fx-center blue dark-1">Copyright © 2022 - Example</div>
         </footer>
 
        
