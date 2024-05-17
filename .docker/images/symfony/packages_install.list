@@ -1,0 +1,9 @@
+symfony/mailer --dev --no-suggest
+symfony/sendgrid-mailer --dev --no-suggest
+symfony/maker-bundle --dev --no-suggest
+symfony/orm-pack --dev --with-all-dependencies --no-suggest
+symfony/twig-bundle
+symfony/runtime
+security
+form validator
+symfonycasts/verify-email-bundle
