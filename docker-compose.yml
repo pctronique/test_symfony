@@ -1,0 +1,91 @@
+
+services:
+###########################
+# Setup the symfony container
+###########################
+    symfony:
+        container_name: ${NAME_PROJECT}_symfony
+        restart: always
+        build: 
+            context: ./.docker/images/symfony/
+            args:
+                - VALUE_PHP_VERSION=${VALUE_PHP_VERSION}
+                - VALUE_XDEBUG_VERSION=${VALUE_XDEBUG_VERSION}
+                - VALUE_COMPOSER_VERSION=${VALUE_COMPOSER_VERSION}
+                - VALUE_MHSEND_VERSION=${VALUE_MHSENDMAIL_VERSION}
+        volumes:
+            - ./www/:/usr/local/apache2/www
+            - ./config/data:/docker-entrypoint-initdata.d:rw
+            - ./config/dockercron:/var/docker/cron/dockercron:rw
+            - ./.docker/containers/symfony/opcache-recommended.ini:/usr/local/etc/php/conf.d/opcache-recommended.ini:ro
+            - ./.docker/containers/symfony/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini:ro
+            - ./.docker/containers/symfony/php.ini:/usr/local/etc/php/conf.d/php.ini:ro
+            - ./.docker/containers/symfony/mailhog.ini:/usr/local/etc/php/conf.d/mailhog.ini:ro
+            - ./.dockertmp/log/symfony:/var/log/docker/php:rw
+            - ./.dockertmp/log/xdebug:/var/log/docker/xdebug:rw
+            - ./.dockertmp/tmp/symfony:/var/tmp/docker/php:rw
+        ports:
+            - ${VALUE_SYMFONY_PORT}:8000
+        environment:
+            - TZ=${VALUE_TIMEZONES}
+            - PHP_FOLDER_DATA=${FOLDER_DATA}
+            - PHP_SGBD_DATABASE=${SGBD_DATABASE}
+            - PHP_SGBD_PASSWORD=${SGBD_PASSWORD}
+            - PHP_SGBD_USER=root
+            - PHP_SGBD_DBNAME=${NAME_PROJECT}_mariadb
+
+            
+###########################
+# Setup the Database (MariaDB) container
+###########################
+    mariadb:
+        container_name: ${NAME_PROJECT}_mariadb
+        restart: always
+        image: mariadb:${VALUE_MARIABD_VERSION}
+        volumes:
+            - ./.docker/containers/mariadb/mariadb.cnf:/etc/mysql/conf.d/mariadb.cnf:ro
+            - ./config/sgbd_data:/docker-entrypoint-initdb.d/:rw
+            - ./.dockertmp/log/mariadb:/var/log/mariadb:rw
+            - ./.dockertmp/tmp/mariadb:/var/tmp/mariadb:rw
+            - ./.dockertmp/mariadb_data:/var/lib/mysql
+        environment:
+            - TZ=${VALUE_TIMEZONES}
+            - MYSQL_DATABASE=${SGBD_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${SGBD_PASSWORD}
+            
+###########################
+# Setup the PhpMyAdmin container
+###########################
+    myadmin:
+        container_name: ${NAME_PROJECT}_phpmyadmin
+        restart: always
+        image: phpmyadmin/phpmyadmin:${VALUE_PHPMYADMIN_VERSION}
+        environment:
+            - PMA_PORT=3306
+            - PMA_HOST=${NAME_PROJECT}_mariadb
+            - PMA_USER=root
+            - PMA_PASSWORD=${SGBD_PASSWORD}
+        ports:
+            - ${VALUE_PHPMYADMIN_PORT}:80
+        depends_on: 
+            - mariadb
+            
+###########################
+# Setup the mailhog container
+###########################
+    mailhog:
+        build:
+            context: .docker/images/mailhog
+            args:
+                - VALUE_MHOG_VERSION=${VALUE_MAILHOG_VERSION}
+        container_name: ${NAME_PROJECT}_mailhog
+        restart: always
+        volumes:
+            - ./.dockertmp/mailhog:/mailhog
+            - ./config/email_data:/docker-entrypoint-initdata.d:rw
+        environment:
+            - MH_STORAGE=maildir
+            - MH_MAILDIR_PATH=/mailhog
+        ports:
+            - ${VALUE_MAILHOG_PORT}:8025
+            
